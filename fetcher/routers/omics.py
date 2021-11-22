@@ -88,3 +88,9 @@ async def get_survival(background_task: BackgroundTasks, patients: tp.Tuple[str]
 async def get_survival(background_task: BackgroundTasks, patients: tp.Tuple[str] = Query(None)):
     return StreamingResponse(aggregate_db('CopyNumber', patients), background=background_task,
                              media_type='application/json')
+
+
+@router.get('/clinical_data')
+async def get_clinical_data(background_task: BackgroundTasks, patients: tp.Tuple[str] = Query(None)):
+    return StreamingResponse(aggregate_db('ClinicalData', patients), background=background_task,
+                             media_type='application/json')
