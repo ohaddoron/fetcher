@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 from common.database import init_cached_database
@@ -13,5 +14,5 @@ app.include_router(router=mri_router)
 
 
 @app.get('/', include_in_schema=False)
-async def index():
-    return RedirectResponse('/docs', status_code=302)
+async def index(request: Request):
+    return RedirectResponse(request.scope.get("root_path") + '/docs', status_code=302)
