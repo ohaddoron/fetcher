@@ -1,6 +1,8 @@
 from functools import lru_cache
 
+from bson import json_util
 from fastapi import APIRouter, Query, Depends
+from loguru import logger
 from starlette.background import BackgroundTasks
 from starlette.responses import StreamingResponse
 import typing as tp
@@ -118,9 +120,49 @@ async def get_patients_by_mutation(mutation: str = Query(None, enum=_get_mutatio
 async def get_patients_age(patients: tp.List[str] = Query(None),
                            settings: Settings = Depends(get_settings)):
     db = init_database(config_name=settings.db_name, async_flag=True)
-    cursor = db['ClinicalData'].find({'patients': {"$in": patients}})
+    ppln = [
+        {
+            '$match': {
+                'patient': {
+                    '$in': patients
+                },
+                'name': 'age_at_diagnosis'
+            }
+        }, {
+            '$group': {
+                '_id': {
+                    'patient': '$patient',
+                    'age': '$value'
+                }
+            }
+        }, {
+            '$project': {
+                'patient': '$_id.patient',
+                'age': '$_id.age',
+                'type': {
+                    '$type': '$_id.age'
+                },
+                '_id': 0
+            }
+        }, {
+            '$match': {
+                'type': 'double'
+            }
+        }, {
+            '$project': {
+                'type': 0
+            }
+        }, {
+            '$addFields': {
+                'age': {
+                    '$divide': [
+                        '$age', 365
+                    ]
+                }
+            }
+        }
+    ]
+    print(json_util.dumps(ppln, indent=2))
+    cursor = db['ClinicalData'].aggregate(ppln)
 
-    out = []
-    async for doc in cursor:
-        out.append(dict(patient=doc['patient'], age=doc['age_at_diagnosis'] / 365))
-    return out
+    return await cursor.to_list(None)
