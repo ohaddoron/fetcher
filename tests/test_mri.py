@@ -18,3 +18,11 @@ def test_get_mri_scans():
         r = requests.head(r.json()[0][0]['files'][0])
 
         r.raise_for_status()
+
+
+def test_get_segmentation_slice_overlayed():
+    with TestClient(app) as client:
+        r = client.get('segmentation_slice')
+        r.raise_for_status()
+
+        pass
