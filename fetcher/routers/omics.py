@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from bson import json_util
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query, Depends, Body
 from loguru import logger
 from starlette.background import BackgroundTasks
 from starlette.responses import StreamingResponse
@@ -117,8 +117,8 @@ async def get_patients_by_mutation(mutation: str = Query(None, enum=_get_mutatio
     return db['SomaticMutation'].find({'name': mutation, 'value': int(mutation_status)}).distinct('patient')
 
 
-@router.get('/patients_age')
-async def get_patients_age(patients: tp.List[str] = Query(None),
+@router.post('/patients_age')
+async def get_patients_age(patients: tp.List[str] = Body(None),
                            settings: Settings = Depends(get_settings)):
     db = init_database(config_name=settings.db_name, async_flag=True)
     ppln = [
