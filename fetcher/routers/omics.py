@@ -110,10 +110,11 @@ def _get_mutations():
 
 @router.get('/patients_by_mutation')
 async def get_patients_by_mutation(mutation: str = Query(None, enum=_get_mutations()),
+                                   mutation_status: bool = True,
                                    settings: Settings = Depends(get_settings)
                                    ):
     db = init_database(config_name=settings.db_name)
-    return db['SomaticMutation'].find({'name': mutation, 'value': 1}).distinct('patient')
+    return db['SomaticMutation'].find({'name': mutation, 'value': int(mutation_status)}).distinct('patient')
 
 
 @router.get('/patients_age')
