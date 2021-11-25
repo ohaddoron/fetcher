@@ -1,4 +1,5 @@
 import asyncio
+import os.path
 import pickle
 import tempfile
 from http.client import HTTPException
@@ -16,7 +17,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from starlette.responses import StreamingResponse
 import skimage.exposure
-from common.database import init_database
+from common.database import init_database as init_database
 from common.utils import read_dicom_images
 from common.les_files import read_all_maps_from_les_file
 from PIL import Image
@@ -146,6 +147,8 @@ async def get_mri_scan_stack(
         patient: str = Query(default=None, enum=_get_mri_patients()),
         sample_number: int = 0,
 ):
+    if patient is None:
+        raise HTTPException(400, 'patient name cannot be None')
     dcm_image = await _fetch_image_stack(patient=patient, sample_number=sample_number,
                                          )
     return StreamingResponse(BytesIO(pickle.dumps(dcm_image)))

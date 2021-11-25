@@ -22,7 +22,7 @@ def test_get_mri_scans():
 
 def test_get_segmentation_slice_overlayed():
     with TestClient(app) as client:
-        r = client.get('segmentation_slice')
+        r = client.get('segmentation_slice', params=dict(patient='TCGA-AO-A03M'))
         r.raise_for_status()
 
         pass

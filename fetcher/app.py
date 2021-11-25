@@ -3,7 +3,6 @@ from fastapi.responses import ORJSONResponse
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-from common.database import init_cached_database
 from fetcher.routers.omics import router as omics_router
 from fetcher.routers.mri import router as mri_router
 
