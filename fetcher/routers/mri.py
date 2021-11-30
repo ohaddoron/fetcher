@@ -135,10 +135,12 @@ async def get_mri_scans(patients: tp.Union[tp.List[str]] = Query(None), segmente
     if patients:
         ppln.insert(0, {'$match': {"patient": {"$in": patients}}})
     db = init_database(async_flag=True, config_name='omics-database')
-    results = await db['MRIScans'].aggregate(ppln).to_list(None)
-    for result in results:
+    cursor = db['MRIScans'].aggregate(ppln)
+    results = []
+    async for result in cursor:
         for sample in result['samples']:
             sample['files'] = sorted(sample['files'])
+        results.append(result)
     return [result['samples'] for result in results]
 
 
