@@ -168,7 +168,9 @@ async def get_patients_age(patients: tp.List[str] = Body(None),
 
 def _get_column_names(config_name: str = 'omics-database'):
     db = init_database(config_name)
-    return db.list_collection_names()
+    names = db.list_collection_names()
+    names.sort()
+    return names
 
 
 @router.get('/column_names')
@@ -181,3 +183,28 @@ async def get_feature_names(col: str = Query(None, enum=_get_column_names()),
                             settings: Settings = Depends(get_settings)):
     db = init_database(settings.db_name)
     return db[col].distinct('name')
+
+
+@router.post('/features_for_patients')
+async def get_features_for_patients(col: str = Body(None, enum=_get_column_names()),
+                                    patients: tp.List[str] = Body(None),
+                                    feature_name: str = Body(None),
+                                    settings: Settings = Depends(get_settings)):
+    db = init_database(settings.db_name, async_flag=True)
+    return await db[col].aggregate([
+        {
+            '$match': {
+                'patient': {
+                    '$in': patients
+                },
+                'name': feature_name
+            }
+        }, {
+            '$project': {
+                'name': 1,
+                'value': 1,
+                '_id': 0,
+                'patient': 1
+            }
+        }
+    ], allowDiskUse=True).to_list(None)
