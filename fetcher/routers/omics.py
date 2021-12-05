@@ -89,12 +89,12 @@ async def get_survival(patients: tp.Tuple[str] = Query(None)):
 
 
 @router.get('/copy_number')
-async def get_survival(patients: tp.Tuple[str] = Query(None)):
+async def get_survival(patients: tp.List[str] = Query(None)):
     return await aggregate_db('CopyNumber', patients)
 
 
 @router.get('/clinical_data')
-async def get_clinical_data(patients: tp.Tuple[str] = Query(None)):
+async def get_clinical_data(patients: tp.List[str] = Query(None)):
     return await aggregate_db('ClinicalData', patients)
 
 
