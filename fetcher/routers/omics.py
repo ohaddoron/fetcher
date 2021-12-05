@@ -20,12 +20,12 @@ async def aggregate_db(collection, patients):
     ppln = [
         {
             "$match": {
-                'case_submitter_id':
+                'patient':
                     {"$in":
-                         patients
+                         list(patients)
                      }
             }
-        } if patients else
+        } if patients is not None else
         {"$match":
              {}
          },
