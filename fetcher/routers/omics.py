@@ -199,7 +199,7 @@ async def get_features_for_patients(col: str = Body(None, enum=_get_column_names
                 },
                 'name': feature_name
             }
-        }, {
+        } if feature_name else {'$match': {'patient': {"$in": patients}}}, {
             '$project': {
                 'name': 1,
                 'value': 1,
